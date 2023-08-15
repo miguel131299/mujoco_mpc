@@ -223,10 +223,8 @@ void RFMPC_3_DOF::TransitionLocked(mjModel* model, mjData* data) {
   // ---------------- handle gait switch, manual or auto -------
   double gait_selection = parameters[residual_.gait_param_id_];
   if (gait_selection != residual_.current_gait_) {
-    printf("gait changed\n");
     residual_.current_gait_ = gait_selection;
     ResidualFn::RFMPC_3_DOFGait gait = residual_.GetGait();
-
     parameters[residual_.duty_param_id_] = ResidualFn::kGaitParam[gait][0];
     parameters[residual_.cadence_param_id_] = ResidualFn::kGaitParam[gait][1];
     parameters[residual_.amplitude_param_id_] = ResidualFn::kGaitParam[gait][2];
@@ -303,12 +301,13 @@ void RFMPC_3_DOF::ModifyScene(const mjModel* model, const mjData* data,
   // current foot positions
   double* foot_pos[ResidualFn::kNumFoot];
   for (ResidualFn::RFMPC_3_DOFFoot foot : ResidualFn::kFootAll) {
-    foot_pos[foot] = data->site_xpos + 3 * residual_.foot_geom_id_[foot];
+    foot_pos[foot] = data->geom_xpos + 3 * residual_.foot_geom_id_[foot];
   }
 
   // stance and flight positions
   double flight_pos[ResidualFn::kNumFoot][3];
   double stance_pos[ResidualFn::kNumFoot][3];
+  // set to foot horizontal position:
   for (ResidualFn::RFMPC_3_DOFFoot foot : ResidualFn::kFootAll) 
   {
     flight_pos[foot][0] = stance_pos[foot][0] = foot_pos[foot][0];
@@ -319,6 +318,7 @@ void RFMPC_3_DOF::ModifyScene(const mjModel* model, const mjData* data,
   double ground[ResidualFn::kNumFoot];
   for (ResidualFn::RFMPC_3_DOFFoot foot : ResidualFn::kFootAll) {
     ground[foot] = Ground(model, data, foot_pos[foot]);
+    printf("ground: %f\n", ground[foot]);
   }
 
   // step heights
@@ -332,7 +332,7 @@ void RFMPC_3_DOF::ModifyScene(const mjModel* model, const mjData* data,
 
     if (step[foot])
     {
-      flight_pos[foot][2] =ResidualFn:: kFootRadius + ground[foot] + step[foot];
+      flight_pos[foot][2] =ResidualFn:: kFootRadius + step[foot] + ground[foot];
       AddConnector(scene, mjGEOM_CYLINDER, ResidualFn::kFootRadius, 
                     stance_pos[foot], flight_pos[foot], kStepRgba);
     }
@@ -469,7 +469,7 @@ void RFMPC_3_DOF::ResidualFn::Walk(double pos[2], double time) const {
 
 // get gait
 RFMPC_3_DOF::ResidualFn::RFMPC_3_DOFGait RFMPC_3_DOF::ResidualFn::GetGait() const {
-  return static_cast<RFMPC_3_DOFGait>(ReinterpretAsInt(parameters_[gait_param_id_]));
+  return static_cast<RFMPC_3_DOFGait>(ReinterpretAsInt(current_gait_));
 }
 
 // return normalized target step height
@@ -495,7 +495,7 @@ void RFMPC_3_DOF::ResidualFn::FootStep(double target_step_height[kNumFoot], doub
   for (RFMPC_3_DOFFoot foot : kFootAll) {
     double footphase = 2*mjPI*kGaitPhase[gait][foot];
     // printf("footphase: %f\n", footphase);
-    printf("foot %d, step height: %f\n", foot, StepHeight(time, footphase, duty_ratio));
+    // printf("foot %d, step height: %f\n", foot, StepHeight(time, footphase, duty_ratio));
 
     target_step_height[foot] = amplitude * StepHeight(time, footphase, duty_ratio);
   }
