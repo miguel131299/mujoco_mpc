@@ -6,33 +6,40 @@
 
             <default class="abduction_motor">
                 <joint limited="true" range="-20 30" type="hinge" 
-                    pos="0 0 0" axis="1 0 0" stiffness="0" damping="0.1" armature="0.0065"/>
+                    pos="0 0 0" axis="1 0 0" stiffness="0" damping="0.1" armature="0.0065"
+                    group="1" />
             </default>
 
             <default class="hip_motor">
                 <joint limited="true" range="-40 40" type="hinge" 
-                    pos="0 0 0" axis="0 1 0" stiffness="0" damping="0.1" armature="0.0065"/>
+                    pos="0 0 0" axis="0 1 0" stiffness="0" damping="0.1" armature="0.0065"
+                    group="1" />
             </default>
 
             <default class="knee_motor">
                 <joint limited="true" range="-30 30" type="hinge" 
-                    pos="0 0 0" axis="0 1 0" stiffness="0" damping="0.1" armature="0.0065"/>
+                    pos="0 0 0" axis="0 1 0" stiffness="0" damping="0.1" armature="0.0065"
+                    group="1" />
             </default>
 
             <default class="AbductionGeom">
-                <geom type="capsule" mass="0.055" size="0.01" rgba="0.0 0.5 0.0 1"/>
+                <geom type="capsule" mass="0.055" size="0.01" rgba="0.0 0.5 0.0 1"
+                    group="1"/>
             </default>
 
             <default class="UpLeg">
-                <geom type="capsule" mass="0.055" size="0.01" fromto="0 0 0 -0.14 0 0" rgba="0.0 0.5 0.0 1"/>
+                <geom type="capsule" mass="0.055" size="0.01" fromto="0 0 0 -0.14 0 0" rgba="0.0 0.5 0.0 1"
+                    group="1" />
             </default>
 
             <default class="DownLeg">
-                <geom type="capsule" mass="0.055" size="0.01" fromto="0 0 0 0.14 0 0" rgba="0.0 0.5 0.0 1"/>
+                <geom type="capsule" mass="0.055" size="0.01" fromto="0 0 0 0.14 0 0" rgba="0.0 0.5 0.0 1"
+                    group="1" />
             </default>
 
             <default class="Foot">
-                <geom type="sphere" mass="0" size="0.02" rgba="1.0 1.0 0.1 1" friction="2 0.02 0.01"/>
+                <geom type="sphere" mass="0" size="0.02" rgba="1.0 1.0 0.1 1" friction="2 0.02 0.01"
+                    group="1"/>
             </default>
 
 
@@ -41,10 +48,10 @@
     </default>
 
     <worldbody>
-        <body name="main_body" pos="0 0 0.2" euler="0 0 0">
+        <body name="main_body" pos="0 0 0.2" euler="0 0 0" >
             <joint name="rail" type="free"/>
     
-            <geom name="box" mass="5.5" type="box" size="0.2025 0.044 0.025" rgba="0.4 0.7 1.0 1"/>
+            <geom name="box" group="1" mass="5.5" type="box" size="0.2025 0.044 0.025" rgba="0.4 0.7 1.0 1"/>
             <site name="imu" size="0.02" pos="0 0 0"/>
             <site name="head" pos=".22 0 0" size="0.02"/>
     
