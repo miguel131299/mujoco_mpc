@@ -188,7 +188,7 @@ class RFMPC_3_DOF : public ThreadSafeTask {
       // double jump_rot_acc_      = 0;
       // double land_rot_acc_      = 0;
 
-  };
+  }; // class ResidualFn
 
   RFMPC_3_DOF() : residual_(this) {}
 

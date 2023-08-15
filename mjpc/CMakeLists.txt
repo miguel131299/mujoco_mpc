@@ -68,6 +68,8 @@ add_library(
   tasks/rfmpc/rfmpc_2_dof.h
   tasks/rfmpc/rfmpc_3_dof.cc
   tasks/rfmpc/rfmpc_3_dof.h
+  tasks/nermo/nermo.cc
+  tasks/nermo/nermo.h
   planners/planner.cc
   planners/planner.h
   planners/policy.h

@@ -1,0 +1,83 @@
+<mujoco>
+  <!-- <include file="../../common.xml"/> -->
+
+  <size memory="10M" />
+
+  <custom>
+    <text name="task_transition" data="Quadruped|Walk" />
+    <numeric name="agent_planner" data="2 " />
+    <numeric name="agent_horizon" data="0.35" />
+    <numeric name="agent_timestep" data="0.01" />
+    <numeric name="sampling_spline_points" data="3" />
+    <numeric name="sampling_trajectories" data="60"/>
+    <numeric name="sampling_exploration" data="0.04" />
+    <numeric name="gradient_spline_points" data="5" />
+
+    <numeric name="residual_select_Gait" data="0"/>
+    <text name="residual_list_Gait" data="Stand|Walk|Trot"/>
+    <numeric name="residual_select_Gait switch" data="1"/>
+    <text name="residual_list_Gait switch" data="Manual|Automatic"/>
+    <numeric name="residual_Cadence" data="2 0 4" />
+    <numeric name="residual_Amplitude" data=".06 0 0.2" />
+    <numeric name="residual_Duty ratio" data="0 0 1"/>
+    <numeric name="residual_Walk speed" data="0 0 4"/>
+    <numeric name="residual_Walk turn" data="0 -2 2"/>
+    <numeric name="residual_Heading" data="0 -3.14 3.14" />
+  </custom>
+  
+  <visual>
+    <headlight diffuse="0.6 0.6 0.6"  ambient="0.3 0.3 0.3" specular="0 0 0"/>
+    <global azimuth="-90"/>
+  </visual>
+
+  <statistic extent="1" center="0 0 .3"/>
+
+  <!-- <worldbody>
+    <light pos="0 0 1.5" dir="0 0 -1" diffuse="0.5 0.5 0.5" specular="0.3 0.3 0.3"
+    directional="true" castshadow="false"/>
+
+    <geom name="floor" size="0 0 0.1" pos="0 0 -0.01" type="plane" material="blue_grid"/>
+
+
+    <body name="goal" mocap="true" pos=".3 0 0.26">
+        <geom name="test" size="0.12" contype="0" conaffinity="0" rgba="0 1 0 .5" group="2"/>
+    </body>
+
+  </worldbody> -->
+
+  <include file="./nermo.xml"/>
+
+  <sensor>
+    <user name="Upright" dim="3" user="6 1 0 3 0.05" />
+    <user name="Height" dim="1" user="6 1 0 3 0.04" />
+    <user name="Position" dim="3" user="2 0.2 0 0.5 0.1" />
+    <user name="Gait" dim="4" user="6 10 0 10 0.03" />
+    <user name="Balance" dim="2" user="2 0 0 0.3 0.1" />
+    <user name="Effort" dim="8" user="0 0.03 0.0 0.1" />
+    <user name="Posture" dim="8" user="0 0.02 0.0 0.1" />
+    <user name="Orientation" dim="2" user="0 0 0 .03" />
+    <user name="Angmom" dim="3" user="0 0 0 .03" />
+
+
+  </sensor>
+
+  <keyframe>
+    <!-- last eight values are the robot joint angles -->
+    <!-- <key name="home"
+    qpos="0 0 0.2
+          1 0 0 0
+          0 0
+          0 0
+          0 0
+          0 0"/> -->
+
+    <!-- <key name="crouch"
+        qpos="-0.0501827 0.00107117 0.143925
+              1 0 0 0
+              0 0 -0.5
+              0 0 -0.5
+              0 0 -0.5
+              0 0 -0.5"/> -->
+
+  </keyframe>
+</mujoco>

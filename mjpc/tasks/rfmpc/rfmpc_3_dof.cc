@@ -318,7 +318,6 @@ void RFMPC_3_DOF::ModifyScene(const mjModel* model, const mjData* data,
   double ground[ResidualFn::kNumFoot];
   for (ResidualFn::RFMPC_3_DOFFoot foot : ResidualFn::kFootAll) {
     ground[foot] = Ground(model, data, foot_pos[foot]);
-    printf("ground: %f\n", ground[foot]);
   }
 
   // step heights
@@ -479,10 +478,9 @@ double RFMPC_3_DOF::ResidualFn::StepHeight(double time, double footphase,
   double step_height = 0;
   if (duty_ratio < 1) {
     foot_angle *= 0.5 / (1 - duty_ratio);
-    // printf("foot_angle: %f\n", foot_angle);
     step_height = mju_cos(mju_clip(foot_angle, -mjPI/2, mjPI/2));
   }
-  // printf("step height: %f\n", step_height);
+
   return mju_abs(step_height) < 1e-6 ? 0.0 : step_height;
 }
 
@@ -491,12 +489,8 @@ void RFMPC_3_DOF::ResidualFn::FootStep(double target_step_height[kNumFoot], doub
                              RFMPC_3_DOFGait gait) const {
   double amplitude = parameters_[amplitude_param_id_];
   double duty_ratio = parameters_[duty_param_id_];
-  // printf("new footstep\n");
   for (RFMPC_3_DOFFoot foot : kFootAll) {
     double footphase = 2*mjPI*kGaitPhase[gait][foot];
-    // printf("footphase: %f\n", footphase);
-    // printf("foot %d, step height: %f\n", foot, StepHeight(time, footphase, duty_ratio));
-
     target_step_height[foot] = amplitude * StepHeight(time, footphase, duty_ratio);
   }
 }

@@ -34,6 +34,7 @@
 // OWN IMPORTS
 #include "mjpc/tasks/rfmpc/rfmpc_2_dof.h"
 #include "mjpc/tasks/rfmpc/rfmpc_3_dof.h"
+#include "mjpc/tasks/nermo/nermo.h"
 
 namespace mjpc {
 
@@ -57,6 +58,7 @@ std::vector<std::shared_ptr<Task>> GetTasks() {
     // OWN TASKS
     std::make_shared<RFMPC>(),
     std::make_shared<RFMPC_3_DOF>(),
+    std::make_shared<Nermo>(),
   };
 }
 }  // namespace mjpc
