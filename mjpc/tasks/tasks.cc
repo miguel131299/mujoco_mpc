@@ -31,6 +31,9 @@
 #include "mjpc/tasks/quadruped/quadruped.h"
 #include "mjpc/tasks/swimmer/swimmer.h"
 #include "mjpc/tasks/walker/walker.h"
+// OWN IMPORTS
+#include "mjpc/tasks/rfmpc/rfmpc_2_dof.h"
+#include "mjpc/tasks/rfmpc/rfmpc_3_dof.h"
 
 namespace mjpc {
 
@@ -51,6 +54,9 @@ std::vector<std::shared_ptr<Task>> GetTasks() {
     std::make_shared<QuadrupedHill>(),
     std::make_shared<Swimmer>(),
     std::make_shared<Walker>(),
+    // OWN TASKS
+    std::make_shared<RFMPC>(),
+    std::make_shared<RFMPC_3_DOF>(),
   };
 }
 }  // namespace mjpc

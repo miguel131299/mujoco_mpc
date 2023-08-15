@@ -64,6 +64,10 @@ add_library(
   tasks/swimmer/swimmer.h
   tasks/walker/walker.cc
   tasks/walker/walker.h
+  tasks/rfmpc/rfmpc_2_dof.cc
+  tasks/rfmpc/rfmpc_2_dof.h
+  tasks/rfmpc/rfmpc_3_dof.cc
+  tasks/rfmpc/rfmpc_3_dof.h
   planners/planner.cc
   planners/planner.h
   planners/policy.h
