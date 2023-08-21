@@ -1,0 +1,149 @@
+<mujoco>
+    <include file="../common.xml"/>
+
+    <size memory="1M" />
+
+    <custom>
+        <text name="task_transition" data="Quadruped|Walk" />
+        <numeric name="agent_planner" data="2" />
+        <numeric name="agent_horizon" data="0.35" />
+        <numeric name="agent_timestep" data="0.01" />
+        <numeric name="sampling_spline_points" data="3" />
+        <numeric name="sampling_trajectories" data="60"/>
+        <numeric name="sampling_exploration" data="0.04" />
+        <numeric name="gradient_spline_points" data="5" />
+    
+        <numeric name="residual_select_Gait" data="0"/>
+        <text name="residual_list_Gait" data="Stand|Walk|Trot|Canter|Gallop"/>
+        <numeric name="residual_select_Gait switch" data="1"/>
+        <text name="residual_list_Gait switch" data="Manual|Automatic"/>
+        <numeric name="residual_Cadence" data="2 0 4" />
+        <numeric name="residual_Amplitude" data=".06 0 0.2" />
+        <numeric name="residual_Duty ratio" data="0 0 1"/>
+        <numeric name="residual_Walk speed" data="0 0 2"/>
+        <numeric name="residual_Walk turn" data="0 -2 2"/>
+        <numeric name="residual_Heading" data="0 -3.14 3.14" />
+        <numeric name="residual_select_Posture" data="1"/>
+        <text name="residual_list_Posture" data="Low|Normal|High"/>
+        <numeric name="residual_Spinal angle" data="0 -1.39 1.39" />
+        <numeric name="residual_Chest height" data="0.2 0.15 0.25" />
+
+    </custom>
+
+    <visual>
+        <headlight diffuse="0.6 0.6 0.6"  ambient="0.3 0.3 0.3" specular="0 0 0"/>
+        <global azimuth="-90"/>
+    </visual>
+
+    <statistic extent="1" center="0 0 .3"/>
+
+    <worldbody>
+        <light pos="0 0 1.5" dir="0 0 -1" diffuse="0.5 0.5 0.5" specular="0.3 0.3 0.3"
+        directional="true" castshadow="false"/>
+
+        <geom name="floor" size="0 0 0.1" pos="0 0 -0.01" type="plane" material="blue_grid"/>
+
+
+        <body name="goal" mocap="true" pos=".3 0 0.26">
+            <geom size="0.12" contype="0" conaffinity="0" rgba="0 1 0 .5" group="2"/>
+        </body>
+    
+  
+    </worldbody>
+
+    <include file="robot_spine.xml"/>
+
+    <actuator>
+        <motor name="Frontlimb-Z" joint="frontlimb-z-hinge" gear="1" ctrllimited="true" ctrlrange="-20 20"/>
+        <motor name="Frontlimb-Y" joint="frontlimb-y-hinge" gear="1" ctrllimited="true" ctrlrange="-20 20"/>
+        <motor name="Hindlimb-Y" joint="hindlimb-y-hinge" gear="1" ctrllimited="true" ctrlrange="-20 20"/>
+
+        <motor name="FL_Abduction" joint="AbductionMotor_FL" gear="1" ctrllimited="true" ctrlrange="-20 20"/>
+        <motor name="FL_Up" joint="HipMotor_FL" gear="1" ctrllimited="true" ctrlrange="-20 20"/>
+        <motor name="FL_Down" joint="KneeMotor_FL" gear="1" ctrllimited="true" ctrlrange="-20 20"/>
+
+        <motor name="FR_Abduction" joint="AbductionMotor_FR" gear="1" ctrllimited="true" ctrlrange="-20 20"/>
+        <motor name="FR_Up" joint="HipMotor_FR" gear="1" ctrllimited="true" ctrlrange="-20 20"/>
+        <motor name="FR_Down" joint="KneeMotor_FR" gear="1" ctrllimited="true" ctrlrange="-20 20"/>
+
+        <motor name="RL_Abduction" joint="AbductionMotor_RL" gear="1" ctrllimited="true" ctrlrange="-20 20"/>
+        <motor name="RL_Up" joint="HipMotor_RL" gear="1" ctrllimited="true" ctrlrange="-20 20"/>
+        <motor name="RL_Down" joint="KneeMotor_RL" gear="1" ctrllimited="true" ctrlrange="-20 20"/>
+
+        <motor name="RR_Abduction" joint="AbductionMotor_RR" gear="1" ctrllimited="true" ctrlrange="-20 20"/>
+        <motor name="RR_Up" joint="HipMotor_RR" gear="1" ctrllimited="true" ctrlrange="-20 20"/>
+        <motor name="RR_Down" joint="KneeMotor_RR" gear="1" ctrllimited="true" ctrlrange="-20 20"/>
+    </actuator>
+
+    <sensor>
+        <user name="Upright" dim="3" user="6 1 0 3 0.05" />
+        <user name="Height" dim="1" user="6 1 0 3 0.04" />
+        <user name="Position" dim="3" user="2 0.2 0 0.5 0.1" />
+        <user name="Gait" dim="4" user="6 2 0 10 0.03" />
+        <user name="Balance" dim="2" user="2 0.2 0 0.3 0.1" />
+        <user name="Effort" dim="15" user="0 0.03 0.0 0.1" />
+        <user name="Posture" dim="15" user="0 0.2 0.0 1" />
+        <user name="Orientation" dim="2" user="0 0 0 .03" />
+        <user name="Angmom" dim="3" user="0 0 0 .03" />
+
+        <framepos name="trace0" objtype="site" objname="head" />
+        <subtreecom name="torso_subtreecom" body="main_body" />
+        <subtreelinvel name="torso_subtreelinvel" body="main_body"/>
+        <subtreeangmom name="torso_angmom" body="main_body"/>
+    </sensor>
+
+    <keyframe>
+        
+        <!-- frontlimb spine joints -->
+        <!-- front left leg joints -->
+        <!-- front right leg joints -->
+
+        <!-- frontlimb spine joint -->
+        <!-- hind left leg joints -->
+        <!-- hind right leg joints -->
+        
+        <key name="low"
+            qpos="
+            0 0 0.2
+            1 0 0 0
+            
+            0 -0.42       
+            0 0.45 0     
+            0 0.45 0  
+            
+            0.42         
+            0 -0.45 0     
+            0 -0.45 0"/>  
+
+        <key name="home"
+            qpos="
+            0 0 0.2
+            1 0 0 0
+
+            0 0       
+            0 0 0     
+            0 0 0  
+
+            0         
+            0 0 0     
+            0 0 0"/>  
+
+        <key name="high"
+            qpos="
+            0 0 0.2
+            1 0 0 0
+
+            0 0.42       
+            0 0 0     
+            0 0 0  
+
+            -0.42         
+            0 0.7 0     
+            0 0.7 0"/>  
+
+      </keyframe>
+    
+
+    
+    
+</mujoco>
