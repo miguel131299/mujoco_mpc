@@ -1,5 +1,5 @@
 <mujoco>
-  <!-- <include file="../../common.xml"/> -->
+  <include file="../../common.xml"/>
 
   <size memory="10M" />
 
@@ -14,13 +14,13 @@
     <numeric name="gradient_spline_points" data="5" />
 
     <numeric name="residual_select_Gait" data="0"/>
-    <text name="residual_list_Gait" data="Stand|Walk|Trot"/>
+    <text name="residual_list_Gait" data="Stand|Walk|Trot|Canter|Gallop"/>
     <numeric name="residual_select_Gait switch" data="1"/>
     <text name="residual_list_Gait switch" data="Manual|Automatic"/>
     <numeric name="residual_Cadence" data="2 0 4" />
-    <numeric name="residual_Amplitude" data=".06 0 0.2" />
+    <numeric name="residual_Amplitude" data=".01 0 0.02" />
     <numeric name="residual_Duty ratio" data="0 0 1"/>
-    <numeric name="residual_Walk speed" data="0 0 4"/>
+    <numeric name="residual_Walk speed" data="0 0 1"/>
     <numeric name="residual_Walk turn" data="0 -2 2"/>
     <numeric name="residual_Heading" data="0 -3.14 3.14" />
   </custom>
@@ -32,18 +32,18 @@
 
   <statistic extent="1" center="0 0 .3"/>
 
-  <!-- <worldbody>
+  <worldbody>
+
     <light pos="0 0 1.5" dir="0 0 -1" diffuse="0.5 0.5 0.5" specular="0.3 0.3 0.3"
     directional="true" castshadow="false"/>
 
     <geom name="floor" size="0 0 0.1" pos="0 0 -0.01" type="plane" material="blue_grid"/>
 
-
-    <body name="goal" mocap="true" pos=".3 0 0.26">
-        <geom name="test" size="0.12" contype="0" conaffinity="0" rgba="0 1 0 .5" group="2"/>
+    <body name="goal" mocap="true" pos="0 -0.1 0.05">
+        <geom type="sphere" size="0.03" contype="0" conaffinity="0" rgba="0 1 0 .5" group="2"/>
     </body>
 
-  </worldbody> -->
+  </worldbody> 
 
   <include file="./nermo.xml"/>
 
@@ -51,25 +51,62 @@
     <user name="Upright" dim="3" user="6 1 0 3 0.05" />
     <user name="Height" dim="1" user="6 1 0 3 0.04" />
     <user name="Position" dim="3" user="2 0.2 0 0.5 0.1" />
-    <user name="Gait" dim="4" user="6 10 0 10 0.03" />
+    <user name="Gait" dim="4" user="6 2 0 10 0.03" />
     <user name="Balance" dim="2" user="2 0 0 0.3 0.1" />
-    <user name="Effort" dim="8" user="0 0.03 0.0 0.1" />
-    <user name="Posture" dim="8" user="0 0.02 0.0 0.1" />
+    <user name="Effort" dim="12" user="0 0.03 0.0 0.1" />
+    <user name="Posture" dim="43" user="0 0.02 0.0 0.1" />
     <user name="Orientation" dim="2" user="0 0 0 .03" />
     <user name="Angmom" dim="3" user="0 0 0 .03" />
 
+    <!-- <framepos name="trace0" objtype="site" objname="head" /> -->
+    <subtreecom name="torso_subtreecom" body="mouse" />
+    <subtreelinvel name="torso_subtreelinvel" body="mouse"/>
+    <subtreeangmom name="torso_angmom" body="mouse"/>
 
   </sensor>
 
   <keyframe>
-    <!-- last eight values are the robot joint angles -->
-    <!-- <key name="home"
-    qpos="0 0 0.2
+    <!-- mocap
+
+        head/neck
+
+        front left
+
+        front right
+
+        spine/hip
+
+        rear left
+
+        rear right
+
+        tail
+    -->
+    <key name="home"
+    qpos="
+          0 0 0.1
           1 0 0 0
+
           0 0
+
+          0 0 0 0
+
+          0 0 0 0
+
+          0 0 0
           0 0
-          0 0
-          0 0"/> -->
+
+          0 0 0 0
+
+          0 0 0 0
+
+          0 0 0 0 0
+          0 0 0 0 0
+          0 0 0 0 0
+          0 0 0 0 
+          
+          0"/>
+
 
     <!-- <key name="crouch"
         qpos="-0.0501827 0.00107117 0.143925

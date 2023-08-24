@@ -46,6 +46,8 @@ class Nermo : public ThreadSafeTask {
         kGaitStand = 0,
         kGaitWalk,
         kGaitTrot,
+        kGaitCanter,
+        kGaitGallop,
         kNumGait
       };
 
@@ -58,10 +60,12 @@ class Nermo : public ThreadSafeTask {
       // gait phase signature (normalized)
       constexpr static double kGaitPhase[kNumGait][kNumFoot] =
       {
-      // FL,  HL,  FR,  HR
-        {0.0, 0.0, 0.0, 0.0},  // stand
-        {0.0, 0.5, 0.0, 0.5},  // walk
-        {0.0, 0.5, 0.5, 0.0}   // trot
+      // FL     HL     FR     HR
+        {0,     0,     0,     0   },   // stand
+        {0,     0.75,  0.5,   0.25},   // walk
+        {0,     0.5,   0.5,   0   },   // trot
+        {0,     0.33,  0.33,  0.66},   // canter
+        {0,     0.4,   0.05,  0.35}    // gallop
       };
 
     // gait parameters, set when switching into gait
@@ -69,17 +73,22 @@ class Nermo : public ThreadSafeTask {
     {
     // duty ratio  cadence  amplitude  balance   upright   height
     // unitless    Hz       meter      unitless  unitless  unitless
-      {1,          1,       0,         0,        1,        1},      // stand
-      {0.75,       1,       0.03,      0,        1,        1},      // walk
-      {0.45,       2,       0.03,      0.2,      1,        1},      // trot
+      {1,          1,       0,          0,        1,        1},      // stand
+      {0.75,       1,       0.003,      0,        1,        1},      // walk
+      {0.45,       2,       0.003,      0.2,      1,        1},      // trot
+      {0.4,        4,       0.005,      0.03,     0.5,      0.2},      // canter
+      {0.3,        3.5,     0.01,       0.03,     0.2,      0.1}       // gallop
+
     };
 
     // velocity ranges for automatic gait switching, meter/second
     constexpr static double kGaitAuto[kNumGait] =
     {
       0,     // stand
-      0.02,  // walk
-      0.02,  // trot
+      0.002,  // walk
+      0.002,  // trot
+      0.006,   // canter
+      0.2,     // gallop
     };
     // notes:
     // - walk is never triggered by auto-gait
@@ -93,7 +102,7 @@ class Nermo : public ThreadSafeTask {
 
     // TODO: Get height for Nermo
     // target torso height over feet when quadrupedal
-    constexpr static double kHeightQuadruped = 0.22;  // meter
+    constexpr static double kHeightQuadruped = 0.045;  // meter
 
     // radius of foot geoms (name="foot_placement") in Model
     constexpr static double kFootRadius = 0.002;       // meter
@@ -104,6 +113,13 @@ class Nermo : public ThreadSafeTask {
     // TODO: Research Joint Posture Gain does this work?
     // posture gain factors for (abduction -> not here), hip, knee
     constexpr static double kJointPostureGain[2] = {1, 1};  // unitless
+
+    constexpr static int kMotorJointIds[kNumFoot][2] = {
+      {9, 12},
+      {13, 16},
+      {22, 25},
+      {26, 29}
+    };  // motor joint ids
 
     //  ============  methods  ============
     // return internal phase clock
@@ -148,7 +164,7 @@ class Nermo : public ThreadSafeTask {
     // std::vector<double> save_weight_;
 
     // gait-related states
-    double current_gait_      = kGaitStand;
+    double current_gait_      = -1;
     double phase_start_       = 0;
     double phase_start_time_  = 0;
     double phase_velocity_    = 0;
