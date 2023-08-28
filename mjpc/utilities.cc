@@ -584,8 +584,10 @@ mjtNum Ground(const mjModel* model, const mjData* data, const mjtNum pos[3],
   mjtNum dist = mj_ray(model, data, query, down, query_geomgroup, flg_static,
                        bodyexclude, &geomid);
 
+
   if (dist < 0) {  // SHOULD NOT OCCUR
-    mju_error("no group 0 geom detected by raycast");
+    dist = 0.001;
+    // mju_error("no group 0 geom detected by raycast");
   }
 
   return pos[2] + height_offset - dist;

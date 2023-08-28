@@ -70,6 +70,8 @@ add_library(
   tasks/rfmpc/rfmpc_3_dof.h
   tasks/rfmpc/rfmpc_spine.cc
   tasks/rfmpc/rfmpc_spine.h
+  tasks/rfmpc/multijoint_spine.cc
+  tasks/rfmpc/multijoint_spine.h
   tasks/nermo/nermo.cc
   tasks/nermo/nermo.h
   planners/planner.cc

@@ -1,5 +1,5 @@
-#ifndef MJPC_TASKS_QUADRUPED_RFMPC_SPINE_H
-#define MJPC_TASKS_QUADRUPED_RFMPC_SPINE_H
+#ifndef MJPC_TASKS_QUADRUPED_MULTISPINE_H
+#define MJPC_TASKS_QUADRUPED_MULTISPINE_H
 
 #include <string>
 #include <mujoco/mujoco.h>
@@ -10,32 +10,32 @@
 
 namespace mjpc {
 
-class RFMPC_SPINE : public ThreadSafeTask {
+class MULTISPINE : public ThreadSafeTask {
  public:
   std::string Name() const override;
   std::string XmlPath() const override;
 
   class ResidualFn : public mjpc::BaseResidualFn {
     public:
-      explicit ResidualFn(const RFMPC_SPINE* task)
+      explicit ResidualFn(const MULTISPINE* task)
         : mjpc::BaseResidualFn(task) {}
       ResidualFn(const ResidualFn&) = default;
       void Residual(const mjModel* model, const mjData* data,
                     double* residual) const override;
 
     private:
-      friend class RFMPC_SPINE;
+      friend class MULTISPINE;
 
       //  ============  enums  ============
       // modes
-      enum RFMPC_SPINEMode {
+      enum MULTISPINEMode {
         kModeQuadruped = 0,
         kModeWalk,
         kNumMode
       };
 
       // feet
-      enum RFMPC_SPINEFoot {
+      enum MULTISPINEFoot {
         kFootFL  = 0,
         kFootHL,
         kFootFR,
@@ -44,7 +44,7 @@ class RFMPC_SPINE : public ThreadSafeTask {
       };
 
       // gaits
-      enum RFMPC_SPINEGait {
+      enum MULTISPINEGait {
         kGaitStand = 0,
         kGaitWalk,
         kGaitTrot,
@@ -63,10 +63,10 @@ class RFMPC_SPINE : public ThreadSafeTask {
 
 
       //  ============  constants  ============
-      constexpr static RFMPC_SPINEFoot kFootAll[kNumFoot] = {kFootFL, kFootHL,
+      constexpr static MULTISPINEFoot kFootAll[kNumFoot] = {kFootFL, kFootHL,
                                                     kFootFR, kFootHR};
-      constexpr static RFMPC_SPINEFoot kFootHind[2] = {kFootHL, kFootHR};
-      constexpr static RFMPC_SPINEGait kGaitAll[kNumGait] = { kGaitStand, kGaitWalk, kGaitTrot};
+      constexpr static MULTISPINEFoot kFootHind[2] = {kFootHL, kFootHR};
+      constexpr static MULTISPINEGait kGaitAll[kNumGait] = { kGaitStand, kGaitWalk, kGaitTrot};
 
       // gait phase signature (normalized)
       constexpr static double kGaitPhase[kNumGait][kNumFoot] =
@@ -130,7 +130,11 @@ class RFMPC_SPINE : public ThreadSafeTask {
       // posture gain factors for abduction, hip, knee
       constexpr static double kJointPostureGain[3] = {1, 1, 1};  // unitless
 
-      constexpr static const char* kPostureNames[kNumPosture] = {"low", "home", "high"};
+      constexpr static const char* kPostureNames[kNumPosture] = {
+        "low", 
+        "home", 
+        "high"
+        };
 
       constexpr static double kMinHeight = 0.15;
       constexpr static double kMediumHeight = 0.2;
@@ -141,7 +145,7 @@ class RFMPC_SPINE : public ThreadSafeTask {
       double GetPhase(double time) const;
 
       // return current gait
-      RFMPC_SPINEGait GetGait() const;
+      MULTISPINEGait GetGait() const;
 
       // return current posture
       const char* GetPosture() const;
@@ -154,7 +158,7 @@ class RFMPC_SPINE : public ThreadSafeTask {
       double StepHeight(double time, double footphase, double duty_ratio) const;
 
       // compute target step height for all feet
-      void FootStep(double step[kNumFoot], double time, RFMPC_SPINEGait gait) const;
+      void FootStep(double step[kNumFoot], double time, MULTISPINEGait gait) const;
 
       // walk horizontal position given time
       void Walk(double pos[2], double time) const;
@@ -165,7 +169,7 @@ class RFMPC_SPINE : public ThreadSafeTask {
       double map(double value, double inMin, double inMax, double outMin, double outMax) const;
 
       //  ============  task state variables, managed by Transition  ============
-      RFMPC_SPINEMode current_mode_ = kModeQuadruped;
+      MULTISPINEMode current_mode_ = kModeQuadruped;
       double last_transition_time_ = -1;
 
       // common mode states
@@ -198,7 +202,7 @@ class RFMPC_SPINE : public ThreadSafeTask {
       // spinal angle
       double spinal_angle_ = 0;
 
-      enum RFMPC_SPINEJointIDs {
+      enum MULTISPINEJointIDs {
         kFrontLimbZHinge = 7,
         kFrontLimbYHinge,
         kAbductionFL,
@@ -216,12 +220,12 @@ class RFMPC_SPINE : public ThreadSafeTask {
         kKneeRR,
       };
 
-      struct RFMPC_SPINEJointValues {
+      struct MULTISPINEJointValues {
         double min_value;
         double max_value;
       };
 
-      RFMPC_SPINEJointValues getJointValues(enum RFMPC_SPINEJointIDs joint_id) const 
+      MULTISPINEJointValues getJointValues(enum MULTISPINEJointIDs joint_id) const 
       {
         switch (joint_id)
         {
@@ -253,7 +257,8 @@ class RFMPC_SPINE : public ThreadSafeTask {
       int amplitude_param_id_   = -1;
       int duty_param_id_        = -1;
       int posture_param_id_     = -1;
-      int spinal_angle_param_id_ = -1;
+      int spinal_angle_z_param_id_ = -1;
+      int spinal_angle_y_param_id_ = -1;
       int chest_height_param_id_ = -1;
       int upright_cost_id_      = -1;
       int balance_cost_id_      = -1;
@@ -279,7 +284,7 @@ class RFMPC_SPINE : public ThreadSafeTask {
 
   }; // class ResidualFn
 
-  RFMPC_SPINE() : residual_(this) {}
+  MULTISPINE() : residual_(this) {}
 
   void TransitionLocked(mjModel* model, mjData* data) override;
 
@@ -305,4 +310,4 @@ private:
 
 }  // namespace mjpc
 
-#endif  // MJPC_TASKS_QUADRUPED_RFMPC_SPINE_H_
+#endif  // MJPC_TASKS_QUADRUPED_MULTISPINE_H_

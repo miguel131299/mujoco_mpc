@@ -35,6 +35,7 @@
 #include "mjpc/tasks/rfmpc/rfmpc_2_dof.h"
 #include "mjpc/tasks/rfmpc/rfmpc_3_dof.h"
 #include "mjpc/tasks/rfmpc/rfmpc_spine.h"
+#include "mjpc/tasks/rfmpc/multijoint_spine.h"
 #include "mjpc/tasks/nermo/nermo.h"
 
 namespace mjpc {
@@ -60,6 +61,7 @@ std::vector<std::shared_ptr<Task>> GetTasks() {
     std::make_shared<RFMPC>(),
     std::make_shared<RFMPC_3_DOF>(),
     std::make_shared<RFMPC_SPINE>(),
+    std::make_shared<MULTISPINE>(),
     std::make_shared<Nermo>(),
   };
 }
