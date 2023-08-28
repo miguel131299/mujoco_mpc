@@ -25,8 +25,8 @@
       <numeric name="residual_Heading" data="0 -3.14 3.14" />
       <numeric name="residual_select_Posture" data="1"/>
       <text name="residual_list_Posture" data="Low|Normal|High"/>
-      <numeric name="residual_Spinal angle Z" data="0 -1.39 1.39" />
-      <numeric name="residual_Spinal angle Y" data="0 -1.39 1.39" />
+      <numeric name="residual_Spinal angle Z" data="0 -0.84 0.84" />
+      <numeric name="residual_Spinal angle Y" data="0 -0.84 0.84" />
       <numeric name="residual_Chest height" data="0.2 0.15 0.25" />
 
   </custom>
