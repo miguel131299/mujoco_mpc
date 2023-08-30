@@ -139,9 +139,10 @@ void MULTISPINE::ResidualFn::Residual(const mjModel* model,
   }
   
   // change spinal angle independent of posture
+  const int spinal_joint_y_ids[4] = {13, 15, 17, 19};
   const int spinal_joint_z_ids[4] = {14, 16, 18, 20};
   const double spinal_angle_z = parameters_[spinal_angle_z_param_id_];
-  // const double spinal_angle_y = parameters_[spinal_angle_y_param_id_];
+  const double spinal_angle_y = parameters_[spinal_angle_y_param_id_];
 
   for (int i = 0; i < 4; i++)
   {
@@ -149,7 +150,16 @@ void MULTISPINE::ResidualFn::Residual(const mjModel* model,
     residual[counter + spinal_joint_z_ids[i]] = 
         data->qpos[spinal_joint_z_ids[i]] - spinal_angle_z/4;
   }
+
+  for (int i = 0; i < 4; i++)
+  {
+    // divide by 4 because we have 4 lateral spinal joints
+    residual[counter + spinal_joint_y_ids[i]] = 
+        data->qpos[spinal_joint_y_ids[i]] - spinal_angle_y/4;
+        
+  }
   
+  printf("spinal_angle_y: %f\n", spinal_angle_y);
   counter += model->nu;
 
   // -------------- Yaw/Orientiation ---------------
