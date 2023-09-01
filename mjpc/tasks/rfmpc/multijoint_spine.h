@@ -58,6 +58,8 @@ class MULTISPINE : public ThreadSafeTask {
         kPostureNormal = 0,
         kPostureLow,
         kPostureHigh,
+        kPostureLeft,
+        kPostureRight,
         kNumPosture
       };
 
@@ -84,7 +86,7 @@ class MULTISPINE : public ThreadSafeTask {
       {
       // duty ratio  cadence  amplitude  balance   upright   height   posture
       // unitless    Hz       meter      unitless  unitless  unitless unitless
-        {1,          1,       0,         0.3,       1,        1},      // stand
+        {1,          1,       0,         0.03,       1,        1},      // stand
         {0.75,       1,       0.015,      0.15,     1,        1},      // walk
         {0.45,       2,       0.015,      0.2,      1,        1},      // trot
         {0.4,        4,       0.025,      0.03,     0.5,      0.2},      // canter
@@ -95,10 +97,10 @@ class MULTISPINE : public ThreadSafeTask {
       constexpr static double kGaitAuto[kNumGait] =
       {
         0,     // stand
-        0.01,  // walk
-        0.01,  // trot
-        0.3,   // canter
-        1,     // gallop
+        0.02,  // walk
+        0.02,  // trot
+        0.25,   // canter
+        0.5,     // gallop
       };
 
 
@@ -107,7 +109,7 @@ class MULTISPINE : public ThreadSafeTask {
       // - canter actually has a wider range than gallop
 
       // automatic gait switching: time constant for com speed filter
-      constexpr static double kAutoGaitFilter = 0.1;    // second
+      constexpr static double kAutoGaitFilter = 0.2;    // second
 
       // automatic gait switching: minimum time between switches
       constexpr static double kAutoGaitMinTime = 1;     // second
@@ -115,9 +117,11 @@ class MULTISPINE : public ThreadSafeTask {
       // target torso height over feet when quadrupedal
       constexpr static double kHeightQuadruped[kNumPosture] = 
       {
-        0.15,   // low
+        0.1885,   // low
         0.20,   // normal
-        0.25    // high
+        0.19,      // high
+        0.20,   // left
+        0.20    // right
       };  // meter
       // constexpr static double kHeightQuadruped = 0.20;  // meter
 
@@ -133,7 +137,9 @@ class MULTISPINE : public ThreadSafeTask {
       constexpr static const char* kPostureNames[kNumPosture] = {
         "low", 
         "home", 
-        "high"
+        "high",
+        "left",
+        "right"
         };
 
       constexpr static double kMinHeight = 0.15;
@@ -198,9 +204,12 @@ class MULTISPINE : public ThreadSafeTask {
       // posture
       double current_posture_ = 0;
 
-
       // spinal angle
       double spinal_angle_ = 0;
+
+      // previous actuator values
+      constexpr static int kNumActuator = 20;
+      double prev_actuator_[kNumActuator] = {0};
 
       enum MULTISPINEJointIDs {
         kFrontLimbZHinge = 7,

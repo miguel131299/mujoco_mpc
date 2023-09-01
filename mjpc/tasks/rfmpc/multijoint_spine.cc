@@ -123,43 +123,45 @@ void MULTISPINE::ResidualFn::Residual(const mjModel* model,
   // -------------- Posture ---------------
   // printf("Posture\n");
 
+
+
   double* posture = KeyQPosByName(model, data, GetPosture());
 
+  // for (int i = 0; i < 27; i++)
+  // {
+  //   printf("posture[%d]: %f\n", i, posture[i]);
+  // }
+  
+
   // + 7 because we only care about the joint positions
-  mju_sub(residual + counter, data->qpos + 7, posture + 7, model->nu);
-
-  // if position is normal, let spinal Y joints be set independently
-  if (posture_index == 1)
-  {
-    const int spinal_joint_y_ids[4] = {13, 15, 17, 19};
-    for (int i = 0; i < 0; i++)
-    {
-      residual[counter + spinal_joint_y_ids[i]] = 0;
-    }
-  }
+  mju_sub(residual + counter, data->qpos + 7, posture + 7, model->nu);  
   
-  // change spinal angle independent of posture
-  const int spinal_joint_y_ids[4] = {13, 15, 17, 19};
-  const int spinal_joint_z_ids[4] = {14, 16, 18, 20};
-  const double spinal_angle_z = parameters_[spinal_angle_z_param_id_];
-  const double spinal_angle_y = parameters_[spinal_angle_y_param_id_];
+  // // change spinal angle independent of posture
+  // const int spinal_joint_y_ids[4] = {13, 15, 17, 19};
+  // const double spinal_angle_y = parameters_[spinal_angle_y_param_id_];
+  // const int spinal_joint_z_ids[4] = {14, 16, 18, 20};
+  // const double spinal_angle_z = parameters_[spinal_angle_z_param_id_];
 
-  for (int i = 0; i < 4; i++)
-  {
-    // divide by 4 because we have 4 lateral spinal joints
-    residual[counter + spinal_joint_z_ids[i]] = 
-        data->qpos[spinal_joint_z_ids[i]] - spinal_angle_z/4;
-  }
+  // for (int i = 0; i < 4; i++)
+  // {
+  //   // divide by 4 because we have 4 lateral spinal joints
+  //   residual[counter + spinal_joint_z_ids[i]] = 
+  //       data->qpos[spinal_joint_z_ids[i]] - spinal_angle_z/4;
+    
+  //   // residual[counter + spinal_joint_y_ids[i]] = 
+  //   //     data->qpos[spinal_joint_y_ids[i]] - spinal_angle_y/4;
+  // }
 
-  for (int i = 0; i < 4; i++)
-  {
-    // divide by 4 because we have 4 lateral spinal joints
-    residual[counter + spinal_joint_y_ids[i]] = 
-        data->qpos[spinal_joint_y_ids[i]] - spinal_angle_y/4;
-        
-  }
+  // const int backlimb_joint_ids[6] = {21, 22, 23, 24, 25, 26};
+
+  // for (int i = 0; i < 6; i++)
+  // {
+  //   printf("qpos(joint_id) [%d]: %f\n", backlimb_joint_ids[i], data->qpos[backlimb_joint_ids[i]]);
+  //   printf("residual(joint_id) [%d]: %f\n", backlimb_joint_ids[i], residual[counter + backlimb_joint_ids[i]]);
+  // }
   
-  printf("spinal_angle_y: %f\n", spinal_angle_y);
+  
+  // printf("spinal_angle_y: %f\ n", spinal_angle_y);
   counter += model->nu;
 
   // -------------- Yaw/Orientiation ---------------
@@ -175,6 +177,20 @@ void MULTISPINE::ResidualFn::Residual(const mjModel* model,
   // printf("Angular momentum\n");
   mju_copy3(residual + counter, SensorByName(model, data, "torso_angmom"));
   counter += 3;
+
+  // ------------ Incremental Changes ----------
+  double actuator_sum = 0;
+  for (int i = 0; i < 20; i++)
+  {
+    // for each actuator, calculate the difference between the current and previous actuator value
+    // square it and add it to the residual
+    double actuator_difference = data->ctrl[i] - prev_actuator_[i];
+    actuator_sum += actuator_difference * actuator_difference;
+  }
+
+
+  residual[counter++] = actuator_sum * 1e-2;
+  
 
   CheckSensorDim(model, counter);
 
@@ -231,6 +247,7 @@ void MULTISPINE::TransitionLocked(mjModel* model, mjData* data) {
   
   // ----------------- automatic gait switching ----------------
   double* comvel = SensorByName(model, data, "torso_subtreelinvel");
+  // printf("comvel: %f, %f\n", comvel[0], comvel[1]);
   double beta = mju_exp(-(data->time - residual_.last_transition_time_) /
                         ResidualFn::kAutoGaitFilter);
   residual_.com_vel_[0] = beta * residual_.com_vel_[0] + (1 - beta) * comvel[0];
@@ -243,19 +260,20 @@ void MULTISPINE::TransitionLocked(mjModel* model, mjData* data) {
     for (int64_t gait: ResidualFn::kGaitAll)
     {
       bool lower = com_speed > ResidualFn::kGaitAuto[gait];
-      bool upper = com_speed < ResidualFn::kGaitAuto[gait + 1];
+      bool upper = gait == ResidualFn::kGaitGallop ||
+                   com_speed <= ResidualFn::kGaitAuto[gait + 1];
       bool wait = mju_abs(residual_.gait_switch_time_ - data->time) >
-                            ResidualFn::kAutoGaitMinTime;
+                  ResidualFn::kAutoGaitMinTime;
 
       if (lower && upper && wait) {
-        parameters[residual_.gait_param_id_] = ReinterpretAsInt(gait);
+        parameters[residual_.gait_param_id_] = ReinterpretAsDouble(gait);
         residual_.gait_switch_time_ = data->time;
       }
     }
   }
   
   // ---------------- handle gait switch, manual or auto -------
-  double gait_selection = parameters[residual_.gait_param_id_];
+  double gait_selection = parameters[residual_.gait_param_id_];  
   if (gait_selection != residual_.current_gait_) {
     residual_.current_gait_ = gait_selection;
     ResidualFn::MULTISPINEGait gait = residual_.GetGait();
